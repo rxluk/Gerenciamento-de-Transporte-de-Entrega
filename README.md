@@ -1,6 +1,6 @@
-# Gerenciamento de Transportes de Carga
+# Gerenciamento de Transportes de Entrega
 
-O projeto "Gerenciamento de Transportes de Carga" é um sistema em Java que permite o gerenciamento e registro de entregas de carga realizadas por motoristas em rotas específicas. O sistema oferece funcionalidades para cadastro de motoristas, cadastro de rotas, geração de entregas, alterações de informações de motoristas, lançamento de atrasos de entrega e consultas relacionadas a motoristas, entregas e rotas.
+O projeto "Gerenciamento de Transportes de Entrega" é um sistema em Java que permite o gerenciamento e registro de entregas de carga realizadas por motoristas em rotas específicas. O sistema oferece funcionalidades para cadastro de motoristas, cadastro de rotas, geração de entregas, alterações de informações de motoristas, lançamento de atrasos de entrega e consultas relacionadas a motoristas, entregas e rotas.
 
 ## Funcionalidades
 
