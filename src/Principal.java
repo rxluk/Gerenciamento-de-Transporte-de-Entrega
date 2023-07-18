@@ -67,18 +67,22 @@ public class Principal {
             System.out.println("--------- Menu ----------");
             System.out.println("-------------------------");
             System.out.println("1- ENTREGA - Realizar.");
-            System.out.println("2- ENTREGA - Atualizar.");
+            System.out.println("2- ENTREGA - Alterar.");
             System.out.println("3- ENTREGA - Consultar.");
-            System.out.println("4- ENTREGA - Todas.");
-            System.out.println("5- Voltar");
+            System.out.println("4- ENTREGA - Lancar atraso.");
+            System.out.println("5- ENTREGA - Confirmar entrega.");
+            System.out.println("6- ENTREGA - Verificar pendentes.");
+            System.out.println("7- Voltar");
             opc = Integer.parseInt(Leitura.entDados(""));
             switch (opc) {
                 case 1 -> realizarEntrega();
                 case 2 -> attEntrega();
                 case 3 -> consEntrega();
-                case 4 -> todasEntregas();  
+                case 4 -> lancarAtraso();
+                case 5 -> confirmarEntrega();
+                case 6 -> todasEntregas();
                 default -> {
-                    if(opc == 5) {
+                    if(opc == 7) {
                         return;
                     }
                     Leitura.entDados("Opcao invalida!");
@@ -256,7 +260,7 @@ public class Principal {
             Leitura.entDados("Entrada invalida. Digite apenas numero no campo distancia!");
         }
     }
-    public static void consEntrega() {
+    public static Entrega consEntrega() {
         try {
             Entrega entrega = bd.consEntrega(new Entrega(
                     Integer.parseInt(Leitura.entDados("ID da entrega p/ consulta:  "))
@@ -268,6 +272,7 @@ public class Principal {
                 System.out.println("ENTREGA - Data do Pedido: " + entrega.getDataPedido());
                 System.out.println("ENTREGA - Data de Entrega: " + entrega.getDataEntrega());
                 Leitura.entDados("ENTREGA - Status: " + (entrega.getStatus() ? "Concluida" : "Pendente"));
+                return entrega;
             }
             else {
                 Leitura.entDados("Entrega nao encontrada!");
@@ -276,6 +281,7 @@ public class Principal {
         catch(NumberFormatException nfe) {
             Leitura.entDados("Entrada invalida. Digite apenas numeros inteiros!");
         }
+        return null;
     }
     public static void attEntrega() {
         try {
@@ -286,9 +292,7 @@ public class Principal {
                 System.out.println("Escolha uma opção de alteração:");
                 System.out.println("1- Motorista");
                 System.out.println("2- Rota");
-                System.out.println("3- Status");
-                System.out.println("4- Atraso.");
-                System.out.println("5- Voltar.");
+                System.out.println("3- Voltar.");
                 int opcao = Integer.parseInt(Leitura.entDados(""));
 
                 switch (opcao) {
@@ -327,29 +331,8 @@ public class Principal {
                             return;
                         }
                     }
-                    case 3 -> {
-                        try{
-                            int novoStatus = Integer.parseInt(
-                                    Leitura.entDados("Digite o novo status (1- concluída / 2- pendente): ")
-                            );
-                            if(novoStatus < 3 && novoStatus > 0) {
-                                entrega.setStatus(novoStatus != 2);
-                                System.out.println("Status atualizado com sucesso!");
-                            }else {
-                                Leitura.entDados("Erro, insira a opcao corretamente!");
-                                return;
-                            }
-                        }
-                        catch(NumberFormatException nfe) {
-                            System.out.println("Entrada invalida. Digite apenas numeros inteiros!");
-                            return;
-                        }
-                    }
-                    case 4 -> {
-                        //atraso entrega
-                    }
                     default -> {
-                        if(opcao == 5) {
+                        if(opcao == 3) {
                             return;
                         }
                         System.out.println("Opção inválida!");
@@ -374,14 +357,16 @@ public class Principal {
         if(!bd.getBdEntrega().isEmpty()) {
             System.out.println("Listagem de entregas:");
             for(Entrega entrega : bd.getBdEntrega()) {
-                System.out.println("ENTREGA - Id: " + entrega.getId());
-                System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
-                System.out.println("ENTREGA - Rota: " + entrega.getRota().getOrigem() + " - " + entrega.getRota().getDestino());
-                System.out.println("ENTREGA - Status: " + (entrega.getStatus() ? "Concluída" : "Pendente"));
-                System.out.println("-----------------------------------------");
+                if(!entrega.getStatus()) {
+                    System.out.println("ENTREGA - Id: " + entrega.getId());
+                    System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
+                    System.out.println("ENTREGA - Rota: " + entrega.getRota().getOrigem() + " - " + entrega.getRota().getDestino());
+                    System.out.println("ENTREGA - Status: " + (entrega.getStatus() ? "Concluída" : "Pendente"));
+                    System.out.println("-----------------------------------------");
+                }
             }
         }
-        else System.out.println("Nao ha entregas cadastradas.");
+        else System.out.println("Nao ha entregas pendentes.");
     }
     public static void todosMotoristas() {
 
@@ -420,6 +405,36 @@ public class Principal {
         }
         else {
             System.out.println("CPF nao encontrado!");
+        }
+    }
+    public static void lancarAtraso() {
+        try {
+            Entrega entrega = consEntrega();
+            if(entrega != null) {
+                entrega.atrasoEntrega(Integer.parseInt(Leitura.entDados("Entrega - Dias p/ atrasar: ")));
+            }
+        }
+        catch(NumberFormatException e) {
+            Leitura.entDados("Digite apenas numeros inteiros!");
+        }
+    }
+    public static void confirmarEntrega() {
+        try{
+            Entrega entrega = consEntrega();
+            if(entrega != null) {
+                int novoStatus = Integer.parseInt(
+                        Leitura.entDados("Digite o novo status (1- concluída / 2- pendente): ")
+                );
+                if(novoStatus < 3 && novoStatus > 0) {
+                    entrega.setStatus(novoStatus != 2);
+                    System.out.println("Status atualizado com sucesso!");
+                }else {
+                    Leitura.entDados("Erro, insira a opcao corretamente!");
+                }
+            }
+        }
+        catch(NumberFormatException nfe) {
+            System.out.println("Entrada invalida. Digite apenas numeros inteiros!");
         }
     }
 }
