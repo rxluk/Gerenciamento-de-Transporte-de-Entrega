@@ -1,5 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class Banco {
 
@@ -27,12 +29,15 @@ public class Banco {
     }
     public Motorista cadMotorista(Motorista motorista) {
         if (!bdMotorista.containsKey(motorista.getId())) {
-            bdMotorista.put(motorista.getId(), motorista);
-            return motorista;
+            if (bdMotorista.values().stream().anyMatch(m -> m.getCpf().equals(motorista.getCpf()))) return null;
+            else {
+                bdMotorista.put(motorista.getId(), motorista);
+                return motorista;
+            }
+        } else {
+            return null;
         }
-        return null;
     }
-
     public Motorista altMotorista(Motorista motorista) {
         if (bdMotorista.containsKey(motorista.getId())) {
            bdMotorista.put(motorista.getId(), motorista);
@@ -42,13 +47,14 @@ public class Banco {
     }
 
     public Motorista consMotorista(Motorista motorista) {
-        if(motorista.getId() == 0) {
-            for(Motorista m : getBdMotorista().values()) {
-                if(m.getCpf().equals(motorista.getCpf())) return m;
-            }
+        if (motorista.getId() == 0) {
+            Optional<Motorista> optionalMotorista = getBdMotorista().values().stream()
+                    .filter(m -> m.getCpf().equals(motorista.getCpf()))
+                    .findFirst();
+            return optionalMotorista.orElse(null);
+        } else {
+            return getBdMotorista().getOrDefault(motorista.getId(), null);
         }
-        else if(getBdMotorista().containsKey(motorista.getId())) return getBdMotorista().get(motorista.getId());
-        return null;
     }
     public Motorista removeMotorista(Motorista motorista) {
         if (bdMotorista.containsKey(motorista.getId())) {
@@ -58,7 +64,8 @@ public class Banco {
         return motorista;
     }
     public void cadEntrega(Entrega entrega) {
-        bdEntrega.put(entrega.getId(), entrega); }
+        bdEntrega.put(entrega.getId(), entrega);
+    }
     public Entrega altEntrega(Entrega entrega) {
         if(bdEntrega.containsKey(entrega.getId())) {
             bdEntrega.put(entrega.getId(), entrega);

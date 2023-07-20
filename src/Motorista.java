@@ -7,7 +7,7 @@ public class Motorista {
     private String dtaNasc;
     private String cpf;
     private Ajudante ajudante;
-    private HashSet<Entrega> histEntrega;
+    private final HashSet<Entrega> histEntrega;
 
     public Motorista() {
         id = proxId;

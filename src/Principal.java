@@ -1,25 +1,42 @@
-public class Principal {
+import java.time.format.DateTimeFormatter;
 
+class MenuOption {
+    private final String title;
+    private final Runnable action;
+
+    public MenuOption(String title, Runnable action) {
+        this.title = title;
+        this.action = action;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void execute() {
+        action.run();
+    }
+}
+public class Principal {
     public static Banco bd = Banco.getBanco();
 
     public static void main(String[] args) {
-
         boolean process = true;
-        while(process) {
 
-            int opc;
+        enum MenuPrincipalOption {
+            MOTORISTA,
+            ENTREGA,
+            SAIR
+        }
+        while(process) {
             try {
-                System.out.println("-------------------------");
-                System.out.println("--------- Menu ----------");
-                System.out.println("-------------------------");
-                System.out.println("1- Motorista.");
-                System.out.println("2- Entrega.");
-                System.out.println("3- Sair.");
-                opc = Integer.parseInt(Leitura.entDados(""));
-                switch(opc) {
-                    case 1 -> menuMotorista();
-                    case 2 -> menuEntrega();
-                    case 3 -> process = false;
+                exibirMenuPrincipal();
+                int opc = Integer.parseInt(Leitura.entDados(""));
+
+                switch(MenuPrincipalOption.values()[opc - 1]) {
+                    case MOTORISTA -> menuMotorista();
+                    case ENTREGA -> menuEntrega();
+                    case SAIR -> process = false;
                     default -> Leitura.entDados("Opcao invalida!");
                 }
             }
@@ -28,193 +45,186 @@ public class Principal {
             }
         }
     }
-    public static void menuMotorista() {
-
-        int opc;
-        try {
-            System.out.println("-------------------------");
-            System.out.println("--------- Menu ----------");
-            System.out.println("-------------------------");
-            System.out.println("1- MOTORISTA - Cadastrar.");
-            System.out.println("2- MOTORISTA - Alterar.");
-            System.out.println("3- MOTORISTA - Consultar.");
-            System.out.println("4- MOTORISTA - Todos.");
-            System.out.println("5- MOTORISTA - Recuperar ID.");
-            System.out.println("6- MOTORISTA - Remover.");
-            System.out.println("7- Voltar");
-            opc = Integer.parseInt(Leitura.entDados(""));
-            switch (opc) {
-                case 1 -> cadMotorista();
-                case 2 -> altMotorista();
-                case 3 -> consMotorista();
-                case 4 -> todosMotoristas();
-                case 5 -> recupIdMotorista();
-                case 6 -> removeMotorista();
-                case 7 -> {
-                }
-                default -> Leitura.entDados("Opcao invalida!");
+    public static int lerOpc(int tam) {
+        while (true) {
+            try {
+                int opc = Integer.parseInt(Leitura.entDados(""));
+                if(opc < 1 || opc > tam) Leitura.entDados("Opcao invalida!");
+                else return opc;
+            } catch (NumberFormatException nfe) {
+                Leitura.entDados("Digite apenas numeros inteiros!");
             }
         }
-        catch(NumberFormatException nfe) {
-            Leitura.entDados("Digite apenas numeros inteiros!");
+    }
+    public static void menuMotorista() {
+
+        MenuOption[] motoristasOption =  criarOpcoesMenuMotorista();
+        exibirMenuOpcoes("MOTORISTA", motoristasOption);
+        int opc = lerOpc(motoristasOption.length);
+
+        if(opc >= 1 && opc <= motoristasOption.length) {
+            motoristasOption[opc - 1].execute();
+        } else {
+            Leitura.entDados("Opcao invalida!");
         }
     }
     public static void menuEntrega() {
 
-        int opc;
-        try {
-            System.out.println("-------------------------");
-            System.out.println("--------- Menu ----------");
-            System.out.println("-------------------------");
-            System.out.println("1- ENTREGA - Realizar.");
-            System.out.println("2- ENTREGA - Alterar.");
-            System.out.println("3- ENTREGA - Consultar.");
-            System.out.println("4- ENTREGA - Lancar atraso.");
-            System.out.println("5- ENTREGA - Confirmar entrega.");
-            System.out.println("6- ENTREGA - Verificar pendentes.");
-            System.out.println("7- Voltar");
-            opc = Integer.parseInt(Leitura.entDados(""));
-            switch (opc) {
-                case 1 -> realizarEntrega();
-                case 2 -> attEntrega();
-                case 3 -> consEntrega();
-                case 4 -> lancarAtraso();
-                case 5 -> confirmarEntrega();
-                case 6 -> todasEntregas();
-                default -> {
-                    if(opc == 7) {
-                        return;
-                    }
-                    Leitura.entDados("Opcao invalida!");
-                }
-            }
+        MenuOption[] entregaOption = criarOpcoesMenuEntrega();
+        exibirMenuOpcoes("ENTREGA", entregaOption);
+
+        int opc = lerOpc(entregaOption.length);
+
+        if(opc >= 1 && opc <= entregaOption.length) {
+            entregaOption[opc - 1].execute();
+        } else {
+            Leitura.entDados("Opcao invalida!");
         }
-        catch(NumberFormatException nfe) {
-            Leitura.entDados("Digite apenas numeros inteiros!");
+
+    }
+    public static void exibirMenuPrincipal() {
+        System.out.println("-------------------------");
+        System.out.println("--------- Menu ----------");
+        System.out.println("-------------------------");
+        System.out.println("1- Motorista.");
+        System.out.println("2- Entrega.");
+        System.out.println("3- Sair.");
+    }
+    public static MenuOption[] criarOpcoesMenuMotorista() {
+        return new MenuOption[] {
+                new MenuOption("MOTORISTA - Cadastrar", Principal::cadMotorista),
+                new MenuOption("MOTORISTA - Alterar", Principal::altMotorista),
+                new MenuOption("MOTORISTA - Consultar", Principal::consMotorista),
+                new MenuOption("MOTORISTA - Todos", Principal::todosMotoristas),
+                new MenuOption("MOTORISTA - Recuperar ID", Principal::recupIdMotorista),
+                new MenuOption("MOTORISTA - Remover", Principal::removeMotorista),
+                new MenuOption("Voltar", () -> {})
+        };
+    }
+    public static MenuOption[] criarOpcoesMenuEntrega() {
+        return new MenuOption[] {
+                new MenuOption("ENTREGA - Realizar", Principal::realizarEntrega),
+                new MenuOption("ENTREGA - Alterar", Principal::attEntrega),
+                new MenuOption("ENTREGA - Consultar", Principal::consEntrega),
+                new MenuOption("ENTREGA - Lancar atraso", Principal::lancarAtraso),
+                new MenuOption("ENTREGA - Confirmar entrega", Principal::confirmarEntrega),
+                new MenuOption("ENTREGA - Verificar pendentes", Principal::todasEntregas),
+                new MenuOption("Voltar", () -> {})
+        };
+    }
+    public static void exibirMenuOpcoes(String titulo, MenuOption[] opcoes) {
+        System.out.println("-------------------------");
+        System.out.println("--------- Menu ----------");
+        System.out.println("-------------------------");
+        System.out.println(titulo);
+
+        int index = 1;
+        for (MenuOption opcao : opcoes) {
+            System.out.println(index++ +"- " +opcao.getTitle());
         }
     }
-    public static void cadMotorista() {
-        int opc;
-        try {
-            Motorista motorista = new Motorista();
-            motorista.setNome(Leitura.entDados("Nome: "));
-            motorista.setCpf(Leitura.entDados("Cpf: "));
-            motorista.setDtaNasc(Leitura.entDados("Data de nascimento: "));
-            do {
-                opc = Integer.parseInt(Leitura.entDados("Possui ajudante? (1- Sim / 2- Nao): "));
-                if(opc > 2 || opc < 1) {
-                    Leitura.entDados("Opcao invalida!");
-                }
-            }while(opc < 1 || opc > 2 );
-            if(opc == 1) {
-                motorista.getAjudante().setNome(Leitura.entDados("Nome ajudante: "));
-                motorista.getAjudante().setCpf(Leitura.entDados("Cpf ajudante: "));
+    public static Motorista exibirDadosMotorista(Motorista motorista) {
+        if (motorista != null) {
+            System.out.println("MOTORISTA - Id: " + motorista.getId());
+            System.out.println("MOTORISTA - Nome: " + motorista.getNome());
+            System.out.println("MOTORISTA - CPF: " + motorista.getCpf());
+            System.out.println("MOTORISTA - Data de Nascimento: " + motorista.getDtaNasc());
+            Leitura.entDados("AJUDANTE - " + (motorista.getAjudante()!= null ?
+                    "Nome: " + motorista.getAjudante().getNome()
+                            + "\nAJUDANTE - CPF: " + motorista.getAjudante().getCpf() : "Nenhum"
+            ));
+            if(!motorista.getHistEntrega().isEmpty()) {
+                System.out.println("Historico entrega:");
+                for(Entrega entrega : motorista.getHistEntrega()) System.out.println("Id: " +entrega.getId());
             }
-            else {
-                motorista.setAjudante(null);
-            }
-            motorista = bd.cadMotorista(motorista);
-            if(motorista != null) {
-                Leitura.entDados("ID Cadastrado - Motorista: " + motorista.getId());
-                return;
-            }
-            Leitura.entDados("Erro ao cadastrar!");
+            return motorista;
         }
-        catch(NumberFormatException nfe) {
-            Leitura.entDados("Digite apenas numeros inteiros!");
+        Leitura.entDados("MOTORISTA - nao encontrado!");
+        return null;
+    }
+    public static Entrega exibirDadosEntrega(Entrega entrega) {
+        if (entrega != null) {
+            System.out.println("ENTREGA - Id: " + entrega.getId());
+            System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
+            System.out.println("ENTREGA - Rota: " + entrega.getRota().getOrigem() + " - " + entrega.getRota()
+                    .getDestino());
+            System.out.println("ENTREGA - Data do Pedido: " + entrega.getDataPedido()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            System.out.println("ENTREGA - Data de Entrega: " + entrega.getDataEntrega()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            Leitura.entDados("ENTREGA - Status: " + (entrega.getStatus() ? "Concluida" : "Pendente"));
+            return entrega;
+        }
+        Leitura.entDados("Entrega nao encontrada!");
+        return null;
+    }
+    public static void cadMotorista() {
+        Motorista motorista = new Motorista();
+
+        motorista.setNome(Leitura.entDados("Nome: "));
+        motorista.setCpf(Leitura.entDados("Cpf: "));
+        motorista.setDtaNasc(Leitura.entDados("Data de nascimento: "));
+
+        System.out.println("Possui ajudante? (1- Sim / 2- Nao): ");
+        int opc = lerOpc(2);
+
+        if(opc == 1) {
+            motorista.getAjudante().setNome(Leitura.entDados("Nome ajudante: "));
+            motorista.getAjudante().setCpf(Leitura.entDados("Cpf ajudante: "));
+        }
+        else {
+            motorista.setAjudante(null);
+        }
+        motorista = bd.cadMotorista(motorista);
+        if(motorista != null) {
+            Leitura.entDados("ID Cadastrado - Motorista: " + motorista.getId());
+        } else {
+            Leitura.entDados("Motorista ja cadastrado!");
         }
     }
     public static void altMotorista() {
-        try {
-            Motorista motorista = bd.consMotorista(new Motorista(
-                    Integer.parseInt(Leitura.entDados("Digite o ID do motorista que deseja alterar: ")))
-            );
-            if (motorista != null) {
-                int opc;
-                System.out.println("------------------------");
-                System.out.println("--------- Menu ----------");
-                System.out.println("-------------------------");
-                System.out.println("-- MOTORISTA - Alterar --");
-                System.out.println("1- MOTORISTA - Nome.");
-                System.out.println("2- MOTORISTA - CPF.");
-                System.out.println("3- MOTORISTA - Data de nascimento.");
-                System.out.println("4- MOTORISTA - Ajudante.");
-                System.out.println("5- Voltar");
-                opc = Integer.parseInt(Leitura.entDados(""));
-                switch (opc) {
-                    case 1 -> motorista.setNome(Leitura.entDados("MOTORISTA - novo nome: "));
-                    case 2 -> motorista.setCpf(Leitura.entDados("MOTORISTA - novo CPF: "));
-                    case 3 -> motorista.setDtaNasc(Leitura.entDados("MOTORISTA - nova data de nascimento: "));
-                    case 4 -> {
-                        int ajudante;
-                        try {
-                            ajudante = Integer.parseInt(Leitura.entDados(
-                                    "Deseja adicionar ou remover ajudante?" + " (1- Adicionar/Alterar\n2- Remover): "
-                            ));
-                        } catch (NumberFormatException nfe) {
-                            Leitura.entDados("Digite apenas numeros inteiro!");
-                            return;
-                        }
-                        if (ajudante == 1) {
-                            motorista.setAjudante(
-                                    Leitura.entDados("Nome do novo ajudante: "),
-                                    Leitura.entDados("CPF do novo ajudante: ")
-                            );
-                        } else if (ajudante == 2) {
-                            motorista.setAjudante(null);
-                        } else {
-                            Leitura.entDados("Opção inválida!");
-                        }
-                    }
-                    default -> {
-                        if (opc == 5) {
-                            return;
-                        }
-                        Leitura.entDados("Opcao invalida!");
-                        return;
+        Motorista motorista = bd.consMotorista(new Motorista(
+                Integer.parseInt(Leitura.entDados("Digite o ID do motorista que deseja alterar: ")))
+        );
+        if (motorista != null) {
+            System.out.println("------------------------");
+            System.out.println("--------- Menu ----------");
+            System.out.println("-------------------------");
+            System.out.println("-- MOTORISTA - Alterar --");
+            System.out.println("1- MOTORISTA - Nome.");
+            System.out.println("2- MOTORISTA - CPF.");
+            System.out.println("3- MOTORISTA - Data de nascimento.");
+            System.out.println("4- MOTORISTA - Ajudante.");
+            System.out.println("5- Voltar");
+            int opc = lerOpc(5);
+            switch (opc) {
+                case 1 -> motorista.setNome(Leitura.entDados("MOTORISTA - novo nome: "));
+                case 2 -> motorista.setCpf(Leitura.entDados("MOTORISTA - novo CPF: "));
+                case 3 -> motorista.setDtaNasc(Leitura.entDados("MOTORISTA - nova data de nascimento: "));
+                case 4 -> {
+                    System.out.println("Deseja adicionar ou remover ajudante?\" + \" (1- Adicionar/Alterar\\n2- Remover):");
+                    int ajudante = lerOpc(2);
+                    if (ajudante == 1) {
+                        motorista.setAjudante(
+                                Leitura.entDados("Nome do novo ajudante: "),
+                                Leitura.entDados("CPF do novo ajudante: ")
+                        );
+                    } else {
+                        motorista.setAjudante(null);
                     }
                 }
-                bd.altMotorista(motorista);
-                Leitura.entDados("Motorista alterado com sucesso!");
-                return;
-            } 
+            }
+            bd.altMotorista(motorista);
+            Leitura.entDados("Motorista alterado com sucesso!");
+        } else {
             Leitura.entDados("Motorista não encontrado!");
         }
-        catch (NumberFormatException nfe) {
-            Leitura.entDados("Digite apenas numeros inteiros!");
-        }
-            
     }
-    public static void consMotorista() {
-        try{
-            Motorista motorista = bd.consMotorista(new Motorista(
-                    Integer.parseInt(Leitura.entDados("Digite o ID do motorista que deseja alterar: ")))
-            );
-            if (motorista != null) {
-                System.out.println("MOTORISTA - Id: " + motorista.getId());
-                System.out.println("MOTORISTA - Nome: " + motorista.getNome());
-                System.out.println("MOTORISTA - CPF: " + motorista.getCpf());
-                System.out.println("MOTORISTA - Data de Nascimento: " + motorista.getDtaNasc());
-                if(motorista.getAjudante() != null) {
-                    System.out.println("AJUDANTE  - Nome: " + motorista.getAjudante().getNome());
-                    Leitura.entDados("AJUDANTE  - CPF: " + motorista.getAjudante().getCpf());
-                } 
-                else {
-                    Leitura.entDados("AJUDANTE  - Nenhum");
-                }
-                if(!motorista.getHistEntrega().isEmpty()) {
-                    System.out.println("Historico entrega:");
-                    for(Entrega entrega : motorista.getHistEntrega()) System.out.println("Id: " +entrega.getId());
-                }
-            }
-            else {
-                Leitura.entDados("MOTORISTA - nao encontrado!");
-            }
-        }
-        catch(NumberFormatException nfe) {
-            Leitura.entDados("Entrada invalida. Digite apenas numeros inteiros!");
-        }
-        
+    public static Motorista consMotorista() {
+        Motorista motorista = bd.consMotorista(new Motorista(
+                Integer.parseInt(Leitura.entDados("Digite o ID do motorista que deseja alterar: ")))
+        );
+        return exibirDadosMotorista(motorista);
     }
     public static void removeMotorista() {
         try {
@@ -265,18 +275,7 @@ public class Principal {
             Entrega entrega = bd.consEntrega(new Entrega(
                     Integer.parseInt(Leitura.entDados("ID da entrega p/ consulta:  "))
             ));
-            if (entrega != null) {
-                System.out.println("ENTREGA - Id: " + entrega.getId());
-                System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
-                System.out.println("ENTREGA - Rota: " + entrega.getRota().getOrigem() + " - " + entrega.getRota().getDestino());
-                System.out.println("ENTREGA - Data do Pedido: " + entrega.getDataPedido());
-                System.out.println("ENTREGA - Data de Entrega: " + entrega.getDataEntrega());
-                Leitura.entDados("ENTREGA - Status: " + (entrega.getStatus() ? "Concluida" : "Pendente"));
-                return entrega;
-            }
-            else {
-                Leitura.entDados("Entrega nao encontrada!");
-            }
+            return exibirDadosEntrega(entrega);
         }
         catch(NumberFormatException nfe) {
             Leitura.entDados("Entrada invalida. Digite apenas numeros inteiros!");
@@ -356,15 +355,15 @@ public class Principal {
 
         if(!bd.getBdEntrega().isEmpty()) {
             System.out.println("Listagem de entregas:");
-            for(Entrega entrega : bd.getBdEntrega().values()) {
-                if(!entrega.getStatus()) {
-                    System.out.println("ENTREGA - Id: " + entrega.getId());
-                    System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
-                    System.out.println("ENTREGA - Rota: " + entrega.getRota().getOrigem() + " - " + entrega.getRota().getDestino());
-                    System.out.println("ENTREGA - Status: " + (entrega.getStatus() ? "Concluída" : "Pendente"));
-                    System.out.println("-----------------------------------------");
-                }
-            }
+            bd.getBdEntrega().values().stream()
+                    .filter(entrega -> !entrega.getStatus())
+                    .forEach(entrega ->  {
+                        System.out.println("ENTREGA - Id: " + entrega.getId());
+                        System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
+                        System.out.println("ENTREGA - Rota: " + entrega.getRota().getOrigem() + " - " + entrega.getRota().getDestino());
+                        System.out.println("ENTREGA - Status: " + (entrega.getStatus() ? "Concluída" : "Pendente"));
+                        System.out.println("-----------------------------------------");
+            });
         }
         else System.out.println("Nao ha entregas pendentes.");
     }
@@ -372,7 +371,7 @@ public class Principal {
 
         if(!bd.getBdMotorista().isEmpty()) {
             System.out.println("Listagem de motoristas:");
-            for(Motorista motorista : bd.getBdMotorista().values()) {
+            bd.getBdMotorista().values().forEach(motorista -> {
                 System.out.println("MOTORISTA - Id: " +motorista.getId());
                 System.out.println("MOTORISTA - Nome: " +motorista.getNome());
                 System.out.println("MOTORISTA - CPF: " +motorista.getCpf());
@@ -386,10 +385,10 @@ public class Principal {
                 }
                 if(!motorista.getHistEntrega().isEmpty()) {
                     System.out.println("Historico entrega:");
-                    for(Entrega entrega : motorista.getHistEntrega()) System.out.println("Id: " +entrega.getId());
+                    motorista.getHistEntrega().forEach(entrega -> System.out.println("Id: " +entrega.getId()));
                 }
                 System.out.println("-----------------------------------------");
-            }
+            });
         }
         else {
             System.out.println("Nao  ha motoristas cadastrados");
