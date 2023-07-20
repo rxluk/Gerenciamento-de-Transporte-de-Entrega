@@ -356,7 +356,7 @@ public class Principal {
 
         if(!bd.getBdEntrega().isEmpty()) {
             System.out.println("Listagem de entregas:");
-            for(Entrega entrega : bd.getBdEntrega()) {
+            for(Entrega entrega : bd.getBdEntrega().values()) {
                 if(!entrega.getStatus()) {
                     System.out.println("ENTREGA - Id: " + entrega.getId());
                     System.out.println("ENTREGA - Motorista: " + entrega.getMotorista().getNome());
@@ -372,7 +372,7 @@ public class Principal {
 
         if(!bd.getBdMotorista().isEmpty()) {
             System.out.println("Listagem de motoristas:");
-            for(Motorista motorista : bd.getBdMotorista()) {
+            for(Motorista motorista : bd.getBdMotorista().values()) {
                 System.out.println("MOTORISTA - Id: " +motorista.getId());
                 System.out.println("MOTORISTA - Nome: " +motorista.getNome());
                 System.out.println("MOTORISTA - CPF: " +motorista.getCpf());
