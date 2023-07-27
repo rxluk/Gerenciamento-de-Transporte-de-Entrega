@@ -1,4 +1,8 @@
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 class MenuOption {
     private final String title;
@@ -358,8 +362,10 @@ public class Principal {
     public static void todosMotoristas() {
 
         if(!bd.getBdMotorista().isEmpty()) {
+            List<Motorista> motoristaOrderByName = new ArrayList<>(bd.getBdMotorista().values());
+            Collections.sort(motoristaOrderByName);
             System.out.println("Listagem de motoristas:");
-            bd.getBdMotorista().values().forEach(motorista -> {
+            for(Motorista motorista : motoristaOrderByName) {
                 System.out.println("MOTORISTA - Id: " +motorista.getId());
                 System.out.println("MOTORISTA - Nome: " +motorista.getNome());
                 System.out.println("MOTORISTA - CPF: " +motorista.getCpf());
@@ -376,7 +382,7 @@ public class Principal {
                     motorista.getHistEntrega().forEach(entrega -> System.out.println("Id: " +entrega.getId()));
                 }
                 System.out.println("-----------------------------------------");
-            });
+            }
         }
         else {
             System.out.println("Nao  ha motoristas cadastrados");

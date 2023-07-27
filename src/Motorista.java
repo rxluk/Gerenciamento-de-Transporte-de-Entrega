@@ -1,6 +1,7 @@
 import java.util.HashSet;
+import java.util.Objects;
 
-public class Motorista {
+public class Motorista implements Comparable<Motorista> {
     private String nome;
     private static int proxId = 1;
     private final int id;
@@ -27,6 +28,12 @@ public class Motorista {
         cpf = null;
         histEntrega = null;
     }
+
+    @Override
+    public int compareTo(Motorista other) {
+        return this.getNome().compareTo(other.getNome());
+    }
+
     public Motorista(String cpf) {
         this.id = 0;
         this.nome = null;
@@ -34,6 +41,19 @@ public class Motorista {
         this.cpf = cpf;
         this.ajudante = null;
         histEntrega = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Motorista motorista = (Motorista) o;
+        return id == motorista.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
     public String getNome() {
         return nome;
@@ -102,16 +122,3 @@ public class Motorista {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
