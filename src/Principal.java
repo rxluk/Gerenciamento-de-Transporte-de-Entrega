@@ -61,26 +61,14 @@ public class Principal {
         MenuOption[] motoristasOption =  criarOpcoesMenuMotorista();
         exibirMenuOpcoes("MOTORISTA", motoristasOption);
         int opc = lerOpc(motoristasOption.length);
-
-        if(opc >= 1 && opc <= motoristasOption.length) {
-            motoristasOption[opc - 1].execute();
-        } else {
-            Leitura.entDados("Opcao invalida!");
-        }
+        motoristasOption[opc - 1].execute();
     }
     public static void menuEntrega() {
 
         MenuOption[] entregaOption = criarOpcoesMenuEntrega();
         exibirMenuOpcoes("ENTREGA", entregaOption);
-
         int opc = lerOpc(entregaOption.length);
-
-        if(opc >= 1 && opc <= entregaOption.length) {
-            entregaOption[opc - 1].execute();
-        } else {
-            Leitura.entDados("Opcao invalida!");
-        }
-
+        entregaOption[opc - 1].execute();
     }
     public static void exibirMenuPrincipal() {
         System.out.println("-------------------------");

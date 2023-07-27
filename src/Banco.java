@@ -1,17 +1,18 @@
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class Banco {
 
     private static Banco banco;
     private final Map<Integer, Entrega> bdEntrega;
-    private final Map<Integer, Motorista> bdMotorista;
+    private Map<Integer, Motorista> bdMotorista;
 
     private Banco() {
-        bdEntrega = new HashMap<>();
-        bdMotorista = new HashMap<>();
+        bdEntrega = new TreeMap<>(Comparator.naturalOrder());
+        bdMotorista = new TreeMap<>((id1, id2) -> {
+            String nome1 = bdMotorista.get(id1).getNome();
+            String nome2 = bdMotorista.get(id2).getNome();
+            return nome1.compareTo(nome2);
+        });
     }
 
     public static Banco getBanco() {
